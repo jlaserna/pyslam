@@ -233,7 +233,10 @@ class DescriptorFeatureTracker(FeatureTracker):
             _kps1 = cv2.KeyPoint_convert(kps_ref)
             _kps2 = cv2.KeyPoint_convert(kps_cur)
 
-            _idx1, _idx2 = ex.match2ImagesClique(_kps1, _kps2, des_ref, des_cur, 500, 2, 0.8, 0.7)
+            graphParams = [ 500, 3, 0.8, 0.7 ]
+            cliqueParams = [ 2, 1, 1, -1, 0.05 ]
+
+            _idx1, _idx2 = ex.match2ImagesClique(_kps1, _kps2, des_ref, des_cur, graphParams, cliqueParams)
 
             iidx1 = np.array(_idx1).reshape(len(_idx1))
             iidx2 = np.array(_idx2).reshape(len(_idx2))
