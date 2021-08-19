@@ -32,7 +32,8 @@ kNumFeatures=Parameters.kNumFeatures
 kRatioTest=Parameters.kFeatureMatchRatioTest
 
 kTrackerType = FeatureTrackerTypes.DES_BF      # default descriptor-based, brute force matching with knn 
-#kTrackerType = FeatureTrackerTypes.DES_FLANN  # default descriptor-based, FLANN-based matching 
+#kTrackerType = FeatureTrackerTypes.DES_FLANN  # default descriptor-based, FLANN-based matching
+cliqueTrackerType = FeatureTrackerTypes.CLIQUE
         
         
 """
@@ -50,6 +51,16 @@ class FeatureTrackerConfigs(object):
                 descriptor_type = FeatureDescriptorTypes.ORB2, 
                 match_ratio_test = kRatioTest,
                 tracker_type = kTrackerType)
+
+    # =====================================
+    # Clique trackers
+
+    CLIQUE = dict(num_features=kNumFeatures,
+                num_levels = 8,
+                detector_type = FeatureDetectorTypes.ORB2,
+                descriptor_type = FeatureDescriptorTypes.ORB2,
+                match_ratio_test = kRatioTest,
+                tracker_type=cliqueTrackerType)
     
     # =====================================
     # LK trackers (these can only be used with VisualOdometry() ... at the present time)

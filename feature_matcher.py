@@ -30,6 +30,7 @@ class FeatureMatcherTypes(Enum):
     NONE = 0
     BF = 1     
     FLANN = 2
+    CLIQUE = 3
 
 
 def feature_matcher_factory(norm_type=cv2.NORM_HAMMING, cross_check=False, ratio_test=kRatioTest, type=FeatureMatcherTypes.FLANN):
@@ -37,6 +38,8 @@ def feature_matcher_factory(norm_type=cv2.NORM_HAMMING, cross_check=False, ratio
         return BfFeatureMatcher(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
     if type == FeatureMatcherTypes.FLANN:
         return FlannFeatureMatcher(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
+    if type == FeatureMatcherTypes.CLIQUE:
+        return CliqueFeatureMatcher()
     return None 
 
 
@@ -216,5 +219,12 @@ class FlannFeatureMatcher(FeatureMatcher):
             self.index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 4)  
         self.search_params = dict(checks=32)   # or pass empty dictionary                 
         self.matcher = cv2.FlannBasedMatcher(self.index_params, self.search_params)  
-        self.matcher_name = 'FlannFeatureMatcher'                                                
+        self.matcher_name = 'FlannFeatureMatcher'
+
+# Brute-Force Matcher
+class CliqueFeatureMatcher(FeatureMatcher):
+    def __init__(self, norm_type=cv2.NORM_HAMMING, cross_check = False, ratio_test=kRatioTest, type = FeatureMatcherTypes.BF):
+        super().__init__(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
+        self.matcher = cv2.BFMatcher(norm_type, cross_check)
+        self.matcher_name = 'BfFeatureMatcher'
 

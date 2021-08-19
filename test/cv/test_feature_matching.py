@@ -20,6 +20,8 @@ from feature_tracker_configs import FeatureTrackerConfigs
 
 from timer import TimerFps
 
+import maxClique.imageMatcher as ex
+
 
 # ==================================================================================================
 # N.B.: test the feature tracker and its feature matching capability 
@@ -38,7 +40,7 @@ img1_box = None               # image 1 bounding box (initialization)
 model_fitting_type = None     # 'homography' or 'fundamental' (automatically set below, this is an initialization)
 draw_horizontal_layout=True   # draw matches with the two images in an horizontal or vertical layout (automatically set below, this is an initialization) 
 
-test_type='graf'             # select the test type (there's a template below to add your test)
+test_type='box'             # select the test type (there's a template below to add your test)
 #  
 if test_type == 'box': 
     img1 = cv2.imread('../data/box.png')          # queryImage  
@@ -143,7 +145,20 @@ for i in range(N):
     # Find the keypoints and descriptors in img2    
     kps2, des2 = feature_tracker.detectAndCompute(img2)
     # Find matches    
-    idx1, idx2 = feature_tracker.matcher.match(des1, des2)
+    #idx1, idx2 = feature_tracker.matcher.match(des1, des2)
+
+    _kps1 = cv2.KeyPoint_convert(kps1)
+    _kps2 = cv2.KeyPoint_convert(kps2)
+
+    _idx1, _idx2 = ex.match2ImagesClique(_kps1, _kps2, des1, des2, 500, 3, 0.8, 0.7)
+
+    iidx1 = np.array(_idx1).reshape(len(_idx1))
+    iidx2 = np.array(_idx2).reshape(len(_idx2))
+
+    idx1 = iidx1.astype(int).tolist()
+    idx2 = iidx2.astype(int).tolist()
+
+
     timer.refresh()
 
 
