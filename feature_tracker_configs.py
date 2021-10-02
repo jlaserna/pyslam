@@ -57,8 +57,8 @@ class FeatureTrackerConfigs(object):
 
     CLIQUE = dict(num_features=kNumFeatures,
                 num_levels = 8,
-                detector_type = FeatureDetectorTypes.ORB2,
-                descriptor_type = FeatureDescriptorTypes.ORB2,
+                detector_type = FeatureDetectorTypes.SIFT,
+                descriptor_type = FeatureDescriptorTypes.SIFT,
                 match_ratio_test = kRatioTest,
                 tracker_type=cliqueTrackerType)
     

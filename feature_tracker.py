@@ -234,7 +234,7 @@ class DescriptorFeatureTracker(FeatureTracker):
             _kps2 = cv2.KeyPoint_convert(kps_cur)
 
             graphParams = [ 500, 3, 0.8, 0.7 ]
-            cliqueParams = [ 2, 1, 1, -1, 0.05 ]
+            cliqueParams = [ 2, 1, 1, 1, 0.05 ]
 
             _idx1, _idx2 = ex.match2ImagesClique(_kps1, _kps2, des_ref, des_cur, graphParams, cliqueParams)
 

@@ -16,7 +16,7 @@
 * You should have received a copy of the GNU General Public License
 * along with PYSLAM. If not, see <http://www.gnu.org/licenses/>.
 """
-
+import pickle
 import numpy as np
 import cv2
 import math
@@ -49,12 +49,14 @@ kUsePangolin = False
 if kUsePangolin:
     from viewer3D import Viewer3D
 
-
-
+import class_def
+from class_def import recorder
 
 if __name__ == "__main__":
 
     config = Config()
+
+    myRecorder = recorder()
 
     dataset = dataset_factory(config.dataset_settings)
 
@@ -71,7 +73,6 @@ if __name__ == "__main__":
     # select your tracker configuration (see the file feature_tracker_configs.py) 
     # LK_SHI_TOMASI, LK_FAST
     # SHI_TOMASI_ORB, FAST_ORB, ORB, BRISK, AKAZE, FAST_FREAK, SIFT, ROOT_SIFT, SURF, SUPERPOINT, FAST_TFEAT
-    tracker_config = FeatureTrackerConfigs.LK_SHI_TOMASI
     tracker_config = FeatureTrackerConfigs.CLIQUE
     tracker_config['num_features'] = num_features
     
@@ -92,11 +93,18 @@ if __name__ == "__main__":
     else:
         plt3d = Mplot3d(title='3D trajectory')
 
-    is_draw_err = True 
+    is_draw_err = True
     err_plt = Mplot2d(xlabel='img id', ylabel='m',title='error')
 
-    is_draw_matched_points = True 
-    matched_points_plt = Mplot2d(xlabel='img id', ylabel='# matches',title='# matches')
+    is_draw_matched_points = True
+    matched_points_plt = Mplot2d(xlabel='img id', ylabel='# matches', title='# matches')
+
+    is_draw_time = True
+    time_plt = Mplot2d(xlabel='img id', ylabel='s', title='Execution times')
+
+    import time
+    # Times array
+    exec_times = list()
 
     img_id = 0
     while dataset.isOk():
@@ -105,12 +113,24 @@ if __name__ == "__main__":
 
         if img is not None:
 
-            vo.track(img, img_id)  # main VO function 
+            start_time = time.time()
+            vo.track(img, img_id)  # main VO function
+            stop_time = time.time() - start_time
+
+            exec_times.append(stop_time)
+            recorder.time.append(stop_time)
+
+            if is_draw_time:
+                exec_time = [img_id, stop_time]
+                time_plt.draw(exec_time, 'exec time', color='g')
+                time_plt.refresh()
 
             if(img_id > 2):	       # start drawing from the third image (when everything is initialized and flows in a normal way)
 
                 x, y, z = vo.traj3d_est[-1]
                 x_true, y_true, z_true = vo.traj3d_gt[-1]
+                recorder.track.append((x,y,x))
+                recorder.RT.append(vo.estimatePose(vo.track_result.kps_ref_matched, vo.track_result.kps_cur_matched))
 
                 if is_draw_traj_img:      # draw 2D trajectory (on the plane xz)
                     draw_x, draw_y = int(draw_scale*x) + half_traj_img_size, half_traj_img_size - int(draw_scale*z)
@@ -132,6 +152,7 @@ if __name__ == "__main__":
                         plt3d.drawTraj(vo.traj3d_est,'estimated',color='g',marker='.')
                         plt3d.refresh()
 
+                recorder.errors.append((math.fabs(x_true-x),math.fabs(y_true-y),math.fabs(z_true-z)))
                 if is_draw_err:         # draw error signals 
                     errx = [img_id, math.fabs(x_true-x)]
                     erry = [img_id, math.fabs(y_true-y)]
@@ -141,12 +162,15 @@ if __name__ == "__main__":
                     err_plt.draw(errz,'err_z',color='r')
                     err_plt.refresh()    
 
+                recorder.matches.append((vo.num_matched_kps,vo.num_inliers))
                 if is_draw_matched_points:
                     matched_kps_signal = [img_id, vo.num_matched_kps]
                     inliers_signal = [img_id, vo.num_inliers]                    
                     matched_points_plt.draw(matched_kps_signal,'# matches',color='b')
-                    matched_points_plt.draw(inliers_signal,'# inliers',color='g')                    
-                    matched_points_plt.refresh()                    
+                    matched_points_plt.draw(inliers_signal,'# inliers',color='g')
+                    matched_points_plt.refresh()
+
+
 
 
             # draw camera image 
@@ -157,8 +181,11 @@ if __name__ == "__main__":
             break
         img_id += 1
 
-    #print('press a key in order to exit...')
-    #cv2.waitKey(0)
+    print("\nAverage execution time: " + str(sum(exec_times) / len(exec_times)))
+    print('\npress a key in order to exit...')
+    cv2.waitKey(0)
+
+    recorder.map = traj_img
 
     if is_draw_traj_img:
         print('saving map.png')

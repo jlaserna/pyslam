@@ -40,7 +40,7 @@ img1_box = None               # image 1 bounding box (initialization)
 model_fitting_type = None     # 'homography' or 'fundamental' (automatically set below, this is an initialization)
 draw_horizontal_layout=True   # draw matches with the two images in an horizontal or vertical layout (automatically set below, this is an initialization) 
 
-test_type='box'             # select the test type (there's a template below to add your test)
+test_type='clique'             # select the test type (there's a template below to add your test)
 #  
 if test_type == 'box': 
     img1 = cv2.imread('../data/box.png')          # queryImage  
@@ -80,7 +80,13 @@ if test_type == 'mars':
 #     img1 = cv2.imread('...') 
 #     img2 = cv2.imread('...')
 #     model_fitting_type='...' 
-#     draw_horizontal_layout = True     
+#     draw_horizontal_layout = True
+
+if test_type == 'clique':
+    img1 = cv2.imread('/home/javier/Desktop/Frame_70.jpg')          # queryImage
+    img2 = cv2.imread('/home/javier/Desktop/Frame_71.jpg')          # trainImage
+    model_fitting_type='homography'
+    draw_horizontal_layout = True
     
 if img1 is None:
     raise IOError('Cannot find img1')    
@@ -116,7 +122,7 @@ if False:
 # Init Feature Tracker   
 #============================================  
 
-num_features=2000 
+num_features=2000
 
 tracker_type = FeatureTrackerTypes.DES_BF      # descriptor-based, brute force matching with knn 
 #tracker_type = FeatureTrackerTypes.DES_FLANN  # descriptor-based, FLANN-based matching 
@@ -150,7 +156,10 @@ for i in range(N):
     _kps1 = cv2.KeyPoint_convert(kps1)
     _kps2 = cv2.KeyPoint_convert(kps2)
 
-    _idx1, _idx2 = ex.match2ImagesClique(_kps1, _kps2, des1, des2, 500, 3, 0.8, 0.7)
+    graphParams = [500, 3, 0.8, 0.7]
+    cliqueParams = [2, 1, 1, -1, 0.05]
+
+    _idx1, _idx2 = ex.match2ImagesClique(_kps1, _kps2, des1, des2, graphParams, cliqueParams)
 
     iidx1 = np.array(_idx1).reshape(len(_idx1))
     iidx2 = np.array(_idx2).reshape(len(_idx2))
@@ -158,6 +167,8 @@ for i in range(N):
     idx1 = iidx1.astype(int).tolist()
     idx2 = iidx2.astype(int).tolist()
 
+    #np.savetxt('/home/javier/Desktop/Puntos_frame_75.txt', idx1)
+    #np.savetxt('/home/javier/Desktop/Puntos_frame_76.txt', idx2)
 
     timer.refresh()
 
