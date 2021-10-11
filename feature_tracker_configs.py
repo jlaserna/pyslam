@@ -55,12 +55,26 @@ class FeatureTrackerConfigs(object):
     # =====================================
     # Clique trackers
 
-    CLIQUE = dict(num_features=kNumFeatures,
+    CLIQUE_ORB2 = dict(num_features=kNumFeatures,
                 num_levels = 8,
-                detector_type = FeatureDetectorTypes.SIFT,
-                descriptor_type = FeatureDescriptorTypes.SIFT,
+                detector_type = FeatureDetectorTypes.ORB2,
+                descriptor_type = FeatureDescriptorTypes.ORB2,
                 match_ratio_test = kRatioTest,
                 tracker_type=cliqueTrackerType)
+
+    CLIQUE_AKAZE = dict(num_features=kNumFeatures,
+                  num_levels=8,
+                  detector_type=FeatureDetectorTypes.AKAZE,
+                  descriptor_type=FeatureDescriptorTypes.AKAZE,
+                  match_ratio_test=kRatioTest,
+                  tracker_type=cliqueTrackerType)
+
+    CLIQUE_SIFT = dict(num_features=kNumFeatures,
+                  num_levels=8,
+                  detector_type=FeatureDetectorTypes.SIFT,
+                  descriptor_type=FeatureDescriptorTypes.SIFT,
+                  match_ratio_test=kRatioTest,
+                  tracker_type=cliqueTrackerType)
     
     # =====================================
     # LK trackers (these can only be used with VisualOdometry() ... at the present time)
