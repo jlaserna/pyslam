@@ -55,10 +55,10 @@ if kUsePangolin:
 
 if __name__ == "__main__":
 
-    trakerList = [FeatureTrackerConfigs.SIFT] #, FeatureTrackerConfigs.AKAZE, FeatureTrackerConfigs.SIFT,
-                 # FeatureTrackerConfigs.CLIQUE_ORB2, FeatureTrackerConfigs.CLIQUE_AKAZE,
-                  #FeatureTrackerConfigs.CLIQUE_SIFT)
-    datasetList = ['01'] #, '01', '02']
+    trakerList = [  FeatureTrackerConfigs.ORB2, FeatureTrackerConfigs.AKAZE, FeatureTrackerConfigs.SIFT,
+                    FeatureTrackerConfigs.CLIQUE_ORB2, FeatureTrackerConfigs.CLIQUE_AKAZE,
+                    FeatureTrackerConfigs.CLIQUE_SIFT]
+    datasetList = ['00', '01', '02']
 
     numRecord = 0
 
@@ -74,9 +74,9 @@ if __name__ == "__main__":
 
         config = Config()
 
-        dataset = dataset_factory(config.dataset_settings)
+        config.dataset_settings["name"] = datasetName
 
-        dataset.name = datasetName
+        dataset = dataset_factory(config.dataset_settings)
 
         groundtruth = groundtruth_factory(config.dataset_settings)
 
