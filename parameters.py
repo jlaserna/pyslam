@@ -123,6 +123,10 @@ class Parameters(object):
     # Pointcloud 
     kColorPatchDelta=1  # center +- delta
 
+    # Clique
+    graphParams = [500, 3, 0.8, 0.7]
+    cliqueParams = [2, 1, 1, 1, 0.05]
+
 
     # other parameters 
     kChi2Mono = 5.991 # chi-square 2 DOFs, used for reprojection error  (Hartley Zisserman pg 119)

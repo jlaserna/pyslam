@@ -38,7 +38,8 @@ kRatioTest = Parameters.kFeatureMatchRatioTest
 class FeatureTrackerTypes(Enum):
     LK        = 0   # Lucas Kanade pyramid optic flow (use pixel patch as "descriptor" and matching by optimization)
     DES_BF    = 1   # descriptor-based, brute force matching with knn 
-    DES_FLANN = 2   # descriptor-based, FLANN-based matching 
+    DES_FLANN = 2   # descriptor-based, FLANN-based matching
+    CLIQUE    = 3
 
 
 def feature_tracker_factory(num_features=kMinNumFeatureDefault, 
@@ -204,6 +205,8 @@ class DescriptorFeatureTracker(FeatureTracker):
             self.matching_algo = FeatureMatcherTypes.FLANN
         elif tracker_type == FeatureTrackerTypes.DES_BF:
             self.matching_algo = FeatureMatcherTypes.BF
+        elif tracker_type == FeatureTrackerTypes.CLIQUE:
+            self.matching_algo = FeatureMatcherTypes.CLIQUE
         else:
             raise ValueError("Unmanaged matching algo for feature tracker %s" % self.tracker_type)                   
                     
@@ -221,8 +224,11 @@ class DescriptorFeatureTracker(FeatureTracker):
         kps_cur, des_cur = self.detectAndCompute(image_cur)
         # convert from list of keypoints to an array of points 
         kps_cur = np.array([x.pt for x in kps_cur], dtype=np.float32) 
-    
-        idxs_ref, idxs_cur = self.matcher.match(des_ref, des_cur)  #knnMatch(queryDescriptors,trainDescriptors)
+
+        if self.matching_algo == FeatureMatcherTypes.CLIQUE:
+            idxs_ref, idxs_cur = self.matcher.match(des_ref, des_cur, kps_ref, kps_cur)
+        else:
+            idxs_ref, idxs_cur = self.matcher.match(des_ref, des_cur)  #knnMatch(queryDescriptors,trainDescriptors)
         #print('num matches: ', len(matches))
 
         res = FeatureTrackingResult()
