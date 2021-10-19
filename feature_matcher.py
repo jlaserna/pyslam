@@ -33,6 +33,7 @@ class FeatureMatcherTypes(Enum):
     BF = 1
     FLANN = 2
     CLIQUE = 3
+    CLIQUE_FLANN = 4
 
 
 def feature_matcher_factory(norm_type=cv2.NORM_HAMMING, cross_check=False, ratio_test=kRatioTest,
@@ -42,6 +43,8 @@ def feature_matcher_factory(norm_type=cv2.NORM_HAMMING, cross_check=False, ratio
     if type == FeatureMatcherTypes.FLANN:
         return FlannFeatureMatcher(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
     if type == FeatureMatcherTypes.CLIQUE:
+        return CliqueFeatureMatcher(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
+    if type == FeatureMatcherTypes.CLIQUE_FLANN:
         return CliqueFeatureMatcher(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
     return None
 
@@ -232,13 +235,18 @@ class FlannFeatureMatcher(FeatureMatcher):
 # Clique Matcher
 class CliqueFeatureMatcher(FeatureMatcher):
     def __init__(self, norm_type=cv2.NORM_HAMMING, cross_check=False, ratio_test=kRatioTest,
-                 type=FeatureMatcherTypes.BF):
+                 type=FeatureMatcherTypes.CLIQUE):
         super().__init__(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
         self.matcher_name = 'CliqueFeatureMatcher'
 
     def match(self, des_ref, des_cur, kps_ref, kps_cur):
-        _idx1, _idx2 = ex.match2ImagesClique(kps_ref, kps_cur, des_ref, des_cur,
-                                             Parameters.graphParams, Parameters.cliqueParams)
+
+        parametrosGrafo = Parameters.graphParams
+
+        if ( self.type == FeatureMatcherTypes.CLIQUE_FLANN ):
+            parametrosGrafo[4] = 2
+
+        _idx1, _idx2 = ex.match2ImagesClique(kps_ref, kps_cur, des_ref, des_cur, parametrosGrafo, Parameters.cliqueParams)
 
         index1 = np.array(_idx1).reshape(len(_idx1))
         index2 = np.array(_idx2).reshape(len(_idx2))

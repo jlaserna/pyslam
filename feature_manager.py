@@ -43,18 +43,21 @@ SuperPointFeature2D = import_from('feature_superpoint', 'SuperPointFeature2D')
 TfeatFeature2D = import_from('feature_tfeat', 'TfeatFeature2D')     
 Orbslam2Feature2D = import_from('feature_orbslam2', 'Orbslam2Feature2D')  
 HardnetFeature2D = import_from('feature_hardnet', 'HardnetFeature2D')
-GeodescFeature2D = import_from('feature_geodesc', 'GeodescFeature2D')
+if False:
+    GeodescFeature2D = import_from('feature_geodesc', 'GeodescFeature2D')
 SosnetFeature2D = import_from('feature_sosnet', 'SosnetFeature2D')
 if False:
     L2NetKerasFeature2D = import_from('feature_l2net_keras', 'L2NetKerasFeature2D')  # not used at present time 
 L2NetFeature2D = import_from('feature_l2net', 'L2NetFeature2D')
 LogpolarFeature2D = import_from('feature_logpolar', 'LogpolarFeature2D')
 D2NetFeature2D = import_from('feature_d2net', 'D2NetFeature2D')
-DelfFeature2D = import_from('feature_delf', 'DelfFeature2D')
-ContextDescFeature2D = import_from('feature_contextdesc', 'ContextDescFeature2D')
-LfNetFeature2D = import_from('feature_lfnet', 'LfNetFeature2D')
+if False:
+    DelfFeature2D = import_from('feature_delf', 'DelfFeature2D')
+    ContextDescFeature2D = import_from('feature_contextdesc', 'ContextDescFeature2D')
+    LfNetFeature2D = import_from('feature_lfnet', 'LfNetFeature2D')
 R2d2Feature2D = import_from('feature_r2d2', 'R2d2Feature2D')
-KeyNetDescFeature2D = import_from('feature_keynet', 'KeyNetDescFeature2D')
+if False:
+    KeyNetDescFeature2D = import_from('feature_keynet', 'KeyNetDescFeature2D')
 DiskFeature2D = import_from('feature_disk', 'DiskFeature2D')
 
 kVerbose = True   

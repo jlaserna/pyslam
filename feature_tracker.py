@@ -40,6 +40,7 @@ class FeatureTrackerTypes(Enum):
     DES_BF    = 1   # descriptor-based, brute force matching with knn 
     DES_FLANN = 2   # descriptor-based, FLANN-based matching
     CLIQUE    = 3
+    CLIQUE_FLANN = 4
 
 
 def feature_tracker_factory(num_features=kMinNumFeatureDefault, 
@@ -207,6 +208,8 @@ class DescriptorFeatureTracker(FeatureTracker):
             self.matching_algo = FeatureMatcherTypes.BF
         elif tracker_type == FeatureTrackerTypes.CLIQUE:
             self.matching_algo = FeatureMatcherTypes.CLIQUE
+        elif tracker_type == FeatureTrackerTypes.CLIQUE_FLANN:
+            self.matching_algo = FeatureMatcherTypes.CLIQUE_FLANN
         else:
             raise ValueError("Unmanaged matching algo for feature tracker %s" % self.tracker_type)                   
                     
@@ -225,7 +228,7 @@ class DescriptorFeatureTracker(FeatureTracker):
         # convert from list of keypoints to an array of points 
         kps_cur = np.array([x.pt for x in kps_cur], dtype=np.float32) 
 
-        if self.matching_algo == FeatureMatcherTypes.CLIQUE:
+        if self.matching_algo == FeatureMatcherTypes.CLIQUE or self.matching_algo == FeatureMatcherTypes.CLIQUE_FLANN:
             idxs_ref, idxs_cur = self.matcher.match(des_ref, des_cur, kps_ref, kps_cur)
         else:
             idxs_ref, idxs_cur = self.matcher.match(des_ref, des_cur)  #knnMatch(queryDescriptors,trainDescriptors)

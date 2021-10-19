@@ -124,7 +124,7 @@ class Parameters(object):
     kColorPatchDelta=1  # center +- delta
 
     # Clique
-    graphParams = [500, 3, 0.8, 0.7]
+    graphParams = [500, 3, 0.8, 0.7, 1]
     cliqueParams = [2, 1, 1, 1, 0.05]
 
 

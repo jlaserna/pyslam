@@ -2,9 +2,11 @@ import numpy as np
 from mplot_thread import Mplot2d, Mplot3d
 import cv2
 
-results = np.load('/home/javier/Desktop/Resultados.npy', allow_pickle=True)
+name = 'Resultados:2021-10-14_08-53-56.npy'
 
-idx = 0
+results = np.load('/home/javier/Desktop/' + str(name), allow_pickle=True)
+
+idx = 1
 
 time_plt = Mplot2d(xlabel='img id', ylabel='s', title='Execution times')
 err_plt = Mplot2d(xlabel='img id', ylabel='m',title='error')

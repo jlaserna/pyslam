@@ -74,6 +74,54 @@ class FeatureTrackerConfigs(object):
                        descriptor_type=FeatureDescriptorTypes.SIFT,
                        match_ratio_test=kRatioTest,
                        tracker_type=FeatureTrackerTypes.CLIQUE)
+
+    # =====================================
+    # Clique FLANN trackers
+
+    CLIQUE_ORB2_FLANN = dict(num_features=kNumFeatures,
+                       num_levels=8,
+                       detector_type=FeatureDetectorTypes.ORB2,
+                       descriptor_type=FeatureDescriptorTypes.ORB2,
+                       match_ratio_test=kRatioTest,
+                       tracker_type=FeatureTrackerTypes.CLIQUE_FLANN)
+
+    CLIQUE_AKAZE_FLANN = dict(num_features=kNumFeatures,
+                        num_levels=8,
+                        detector_type=FeatureDetectorTypes.AKAZE,
+                        descriptor_type=FeatureDescriptorTypes.AKAZE,
+                        match_ratio_test=kRatioTest,
+                        tracker_type=FeatureTrackerTypes.CLIQUE_FLANN)
+
+    CLIQUE_SIFT_FLANN = dict(num_features=kNumFeatures,
+                       num_levels=8,
+                       detector_type=FeatureDetectorTypes.SIFT,
+                       descriptor_type=FeatureDescriptorTypes.SIFT,
+                       match_ratio_test=kRatioTest,
+                       tracker_type=FeatureTrackerTypes.CLIQUE_FLANN)
+
+    # =====================================
+    # Flann trackers
+
+    FLANN_ORB2 = dict(num_features=kNumFeatures,
+                       num_levels=8,
+                       detector_type=FeatureDetectorTypes.ORB2,
+                       descriptor_type=FeatureDescriptorTypes.ORB2,
+                       match_ratio_test=kRatioTest,
+                       tracker_type=FeatureTrackerTypes.DES_FLANN)
+
+    FLANN_AKAZE = dict(num_features=kNumFeatures,
+                        num_levels=8,
+                        detector_type=FeatureDetectorTypes.AKAZE,
+                        descriptor_type=FeatureDescriptorTypes.AKAZE,
+                        match_ratio_test=kRatioTest,
+                        tracker_type=FeatureTrackerTypes.DES_FLANN)
+
+    FLANN_SIFT = dict(num_features=kNumFeatures,
+                       num_levels=8,
+                       detector_type=FeatureDetectorTypes.SIFT,
+                       descriptor_type=FeatureDescriptorTypes.SIFT,
+                       match_ratio_test=kRatioTest,
+                       tracker_type=FeatureTrackerTypes.DES_FLANN)
     
     # =====================================
     # LK trackers (these can only be used with VisualOdometry() ... at the present time)
