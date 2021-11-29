@@ -161,6 +161,61 @@ kptsSub = np.array([x.pt for x in kps], dtype=np.float32)
 
 ### Post
 
+def bucketing(inputImg, N, M, NUM, type=0, grid=False):
+
+    xLen = int(inputImg.shape[1] / N)
+    yLen = int(inputImg.shape[0] / M)
+
+    finalKps = list()
+
+    if(type == 0):
+        for i in range(N):
+            for j in range(M):
+                SubImage = copy.deepcopy(inputImg[(j * yLen):((j + 1) * yLen), (i * xLen):((i + 1) * xLen)])
+
+                kps, des = feature_tracker.detectAndCompute(SubImage)
+                kps.sort(key=lambda x: x.response, reverse=True)        # Ordenamos según la fuerza de los keypoints
+                kpts = np.array([x.pt for x in kps], dtype=np.float32)
+
+                for kpt in kpts[:NUM]:
+                    a = int(kpt[0])
+                    b = int(kpt[1])
+                    finalKps.append((a + (i * xLen), b + (j * yLen)))
+
+    elif (type == 1):
+        for i in range(N):
+            for j in range(M):
+                    SubRange = (    (j * yLen, (j + 1) * yLen), 
+                                    (i * xLen, (i + 1) * xLen)
+                                )
+
+                    kpsList = list()
+
+                    for kpt in kptsSub:
+                        if kpt[1] > SubRange[0][0] and kpt[1] < SubRange[0][1] and kpt[0] > SubRange[1][0] and kpt[0] < SubRange[1][1]:
+                            kpsList.append((kpt[0], kpt[1]))
+                    
+                    for kpt in kpsList[:NUM]:
+                        finalKps.append(kpt)
+
+    for pts in finalKps:
+        a = int(pts[0])
+        b = int(pts[1])
+        cv2.circle(inputImg,(a,b), 2, (0, 255, 0), -1)
+
+    if(grid):
+        for i in range(N):
+            cv2.line(inputImg, (i * xLen, 0), (i * xLen, 640), (255, 255, 255), 1)
+        for j in range(M):
+            cv2.line(inputImg, (0, j * yLen), (800, j * yLen), (255, 255, 255), 1)
+
+
+    return inputImg
+
+postBucketing = bucketing(copy.deepcopy(img1), 5, 5, 10, grid=True)
+subImage = bucketing(copy.deepcopy(img1), 5, 5, 10, type=1, grid=True)
+
+"""
 postBucketing = copy.deepcopy(img1)
 
 N = 5
@@ -223,7 +278,7 @@ for i in range(N):
 for j in range(M):
     cv2.line(postBucketing, (0, j * yLen), (800, j * yLen), (255, 255, 255), 1)
     cv2.line(subImage, (0, j * yLen), (800, j * yLen), (255, 255, 255), 1)
-
+"""
 
 MPlotFigure(preBucketing, title='Pre-Bucketing')
 MPlotFigure(postBucketing, title='Post-Bucketing (SubImage)')
