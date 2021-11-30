@@ -163,6 +163,11 @@ kptsSub = np.array([x.pt for x in kps], dtype=np.float32)
 
 def bucketing(inputImg, N, M, NUM, type=0, grid=False):
 
+    if(type == 1):
+        kps, des = feature_tracker.detectAndCompute(inputImg)
+        kps.sort(key=lambda x: x.response, reverse=True)  # Ordenamos según la fuerza de los keypoints
+        kptsSub = np.array([x.pt for x in kps], dtype=np.float32)
+
     xLen = int(inputImg.shape[1] / N)
     yLen = int(inputImg.shape[0] / M)
 
