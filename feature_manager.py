@@ -131,6 +131,12 @@ class FeatureManager(object):
         # block adaptor options 
         self.use_bock_adaptor = False 
         self.block_adaptor = None
+
+        # bucketing options 
+        self.use_bucketing = True
+        self.bucketing_n = 5
+        self.bucketing_m = 5
+        self.bucketing_num_per_grid = 30
         
         # pyramid adaptor options: at present time pyramid adaptor has the priority and can combine a block adaptor withint itself         
         self.use_pyramid_adaptor = False 
@@ -942,6 +948,36 @@ class FeatureManager(object):
             kps = self.detect(frame, mask, filter=True)        # first, detect by using adaptor                           
             kps, des = self.compute(frame, kps, filter=False)  # then, separately compute the descriptors   
             filter = False  # disable keypoint filtering since we already applied it for detection            
+        elif self.use_bucketing:
+            
+            xLen = int(frame.shape[1] / self.bucketing_n)
+            yLen = int(frame.shape[0] / self.bucketing_m)
+
+            kps, des = self._feature_detector.detectAndCompute(frame)
+            kps_sorted_index = [i[0] for i in sorted(enumerate(kps), key=lambda x: x[1].response, reverse=True)] # Ordenamos según la fuerza de los keypoints
+            
+            kps_list = list()
+            des_list = list()
+
+            for i in range(self.bucketing_n):
+                for j in range(self.bucketing_m):
+                    SubRange = (    (j * yLen, (j + 1) * yLen), 
+                                    (i * xLen, (i + 1) * xLen)
+                                )
+
+                    kps_selected = 0
+
+                    for kp_idx in kps_sorted_index:
+                        if kps[kp_idx].pt[1] > SubRange[0][0] and kps[kp_idx].pt[1] < SubRange[0][1] and kps[kp_idx].pt[0] > SubRange[1][0] and kps[kp_idx].pt[0] < SubRange[1][1]:
+                            kps_list.append(kps[kp_idx])
+                            des_list.append(des[kp_idx])
+                            kps_selected += 1
+                        if kps_selected >= self.bucketing_num_per_grid:
+                            break
+                    
+            kps = kps_list
+            des = np.array(des_list)
+
         else:                         
             # standard detectAndCompute  
             if self.is_detector_equal_to_descriptor:                     
