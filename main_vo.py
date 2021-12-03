@@ -52,7 +52,7 @@ if kUsePangolin:
     from viewer3D import Viewer3D
 
 
-
+is_draw_2D = False
 
 if __name__ == "__main__":
 
@@ -202,7 +202,8 @@ if __name__ == "__main__":
 
 
                     # draw camera image
-                    cv2.imshow('Camera', vo.draw_img)
+                    if(is_draw_2D):
+                        cv2.imshow('Camera', vo.draw_img)
 
                 # press 'q' to exit!
                 if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -235,4 +236,4 @@ if __name__ == "__main__":
 
 timeStamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-np.save('/home/javier/Desktop/Resultados:' + str(timeStamp) + '.npy', record, allow_pickle=True)
+np.save('/src/UPMResearchCAR-Robocity/output/Resultados:' + str(timeStamp) + '.npy', record, allow_pickle=True)
