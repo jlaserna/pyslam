@@ -2,11 +2,13 @@ import numpy as np
 from mplot_thread import Mplot2d, Mplot3d
 import cv2
 
-name = 'Resultados:2021-10-14_08-53-56.npy'
+name = 'Resultados:2022-02-09_10-55-10.npy'
+name = 'Resultados:2022-02-09_11-48-42.npy'
+name = 'Resultados:2022-02-09_13-27-08.npy'
 
-results = np.load('/home/javier/Desktop/' + str(name), allow_pickle=True)
+results = np.load('/data/outputs/' + str(name), allow_pickle=True)
 
-idx = 1
+idx = 17
 
 time_plt = Mplot2d(xlabel='img id', ylabel='s', title='Execution times')
 err_plt = Mplot2d(xlabel='img id', ylabel='m',title='error')

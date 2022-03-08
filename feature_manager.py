@@ -133,7 +133,7 @@ class FeatureManager(object):
         self.block_adaptor = None
 
         # bucketing options 
-        self.use_bucketing = True
+        self.use_bucketing = False
         self.bucketing_n = 5
         self.bucketing_m = 5
         self.bucketing_num_per_grid = 30

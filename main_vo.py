@@ -52,7 +52,7 @@ if kUsePangolin:
     from viewer3D import Viewer3D
 
 
-is_draw_2D = False
+is_draw_2D = True
 
 if __name__ == "__main__":
 
@@ -62,7 +62,7 @@ if __name__ == "__main__":
                     FeatureTrackerConfigs.CLIQUE_ORB2_FLANN, FeatureTrackerConfigs.CLIQUE_AKAZE_FLANN, FeatureTrackerConfigs.CLIQUE_SIFT_FLANN
                     ]
 
-    datasetList = ['00', '01', '02']
+    datasetList = ['04', '06', '07']
 
     numRecord = 0
 
@@ -236,4 +236,4 @@ if __name__ == "__main__":
 
 timeStamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-np.save('/src/UPMResearchCAR-Robocity/output/Resultados:' + str(timeStamp) + '.npy', record, allow_pickle=True)
+np.save('/data/outputs/Resultados:' + str(timeStamp) + '.npy', record, allow_pickle=True)
