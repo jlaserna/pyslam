@@ -32,7 +32,8 @@ kNumFeatures=Parameters.kNumFeatures
 kRatioTest=Parameters.kFeatureMatchRatioTest
 
 kTrackerType = FeatureTrackerTypes.DES_BF      # default descriptor-based, brute force matching with knn 
-#kTrackerType = FeatureTrackerTypes.DES_FLANN  # default descriptor-based, FLANN-based matching 
+#kTrackerType = FeatureTrackerTypes.DES_FLANN  # default descriptor-based, FLANN-based matching
+cliqueTrackerType = FeatureTrackerTypes.CLIQUE
         
         
 """

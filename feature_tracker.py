@@ -29,6 +29,7 @@ from utils_sys import Printer, import_from
 from utils_geom import hamming_distance, hamming_distances, l2_distance, l2_distances
 from parameters import Parameters 
 
+import maxClique.imageMatcher as ex
 
 kMinNumFeatureDefault = 2000
 kLkPyrOpticFlowNumLevelsMin = 3   # maximal pyramid level number for LK optic flow 
@@ -225,12 +226,33 @@ class DescriptorFeatureTracker(FeatureTracker):
     # out: FeatureTrackingResult()
     def track(self, image_ref, image_cur, kps_ref, des_ref):
         kps_cur, des_cur = self.detectAndCompute(image_cur)
-        # convert from list of keypoints to an array of points 
-        kps_cur = np.array([x.pt for x in kps_cur], dtype=np.float32) 
 
-        if self.matching_algo == FeatureMatcherTypes.CLIQUE or self.matching_algo == FeatureMatcherTypes.CLIQUE_FLANN:
-            idxs_ref, idxs_cur = self.matcher.match(des_ref, des_cur, kps_ref, kps_cur)
+        if self.matching_algo == FeatureMatcherTypes.CLIQUE:
+
+            kps_ref, des_ref = self.detectAndCompute(image_ref)
+
+            kps_cur, des_cur = self.detectAndCompute(image_cur)
+
+            _kps1 = cv2.KeyPoint_convert(kps_ref)
+            _kps2 = cv2.KeyPoint_convert(kps_cur)
+
+            graphParams = [ 500, 3, 0.8, 0.7 ]
+            cliqueParams = [ 2, 1, 1, 1, 0.05 ]
+
+            _idx1, _idx2 = ex.match2ImagesClique(_kps1, _kps2, des_ref, des_cur, graphParams, cliqueParams)
+
+            iidx1 = np.array(_idx1).reshape(len(_idx1))
+            iidx2 = np.array(_idx2).reshape(len(_idx2))
+
+            idxs_ref = iidx1.astype(int).tolist()
+            idxs_cur = iidx2.astype(int).tolist()
+
+            # convert from list of keypoints to an array of points
+            kps_ref = np.array([x.pt for x in kps_ref], dtype=np.float32)
+            kps_cur = np.array([x.pt for x in kps_cur], dtype=np.float32)
         else:
+            # convert from list of keypoints to an array of points
+            kps_cur = np.array([x.pt for x in kps_cur], dtype=np.float32)
             idxs_ref, idxs_cur = self.matcher.match(des_ref, des_cur)  #knnMatch(queryDescriptors,trainDescriptors)
         #print('num matches: ', len(matches))
 
@@ -240,7 +262,7 @@ class DescriptorFeatureTracker(FeatureTracker):
         res.des_cur = des_cur  # all the current descriptors         
         
         res.kps_ref_matched = np.asarray(kps_ref[idxs_ref]) # the matched ref kps  
-        res.idxs_ref = np.asarray(idxs_ref)                  
+        res.idxs_ref = np.asarray(idxs_ref)
         
         res.kps_cur_matched = np.asarray(kps_cur[idxs_cur]) # the matched cur kps  
         res.idxs_cur = np.asarray(idxs_cur)

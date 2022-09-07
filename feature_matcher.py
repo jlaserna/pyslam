@@ -33,7 +33,6 @@ class FeatureMatcherTypes(Enum):
     BF = 1
     FLANN = 2
     CLIQUE = 3
-    CLIQUE_FLANN = 4
 
 
 def feature_matcher_factory(norm_type=cv2.NORM_HAMMING, cross_check=False, ratio_test=kRatioTest,
@@ -43,10 +42,8 @@ def feature_matcher_factory(norm_type=cv2.NORM_HAMMING, cross_check=False, ratio
     if type == FeatureMatcherTypes.FLANN:
         return FlannFeatureMatcher(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
     if type == FeatureMatcherTypes.CLIQUE:
-        return CliqueFeatureMatcher(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
-    if type == FeatureMatcherTypes.CLIQUE_FLANN:
-        return CliqueFeatureMatcher(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
-    return None
+        return CliqueFeatureMatcher()
+    return None 
 
 
 """
@@ -226,89 +223,16 @@ class FlannFeatureMatcher(FeatureMatcher):
         if norm_type == cv2.NORM_L2:
             # FLANN parameters for float descriptors 
             FLANN_INDEX_KDTREE = 1
-            self.index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=4)
-        self.search_params = dict(checks=32)  # or pass empty dictionary
-        self.matcher = cv2.FlannBasedMatcher(self.index_params, self.search_params)
+            self.index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 4)  
+        self.search_params = dict(checks=32)   # or pass empty dictionary                 
+        self.matcher = cv2.FlannBasedMatcher(self.index_params, self.search_params)  
         self.matcher_name = 'FlannFeatureMatcher'
 
-"""
-# Clique Matcher
+# Brute-Force Matcher
 class CliqueFeatureMatcher(FeatureMatcher):
-    def __init__(self, norm_type=cv2.NORM_HAMMING, cross_check=False, ratio_test=kRatioTest,
-                 type=FeatureMatcherTypes.CLIQUE):
+    def __init__(self, norm_type=cv2.NORM_HAMMING, cross_check = False, ratio_test=kRatioTest, type = FeatureMatcherTypes.BF):
         super().__init__(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
-        self.matcher_name = 'CliqueFeatureMatcher'
-
-    def match(self, des_ref, des_cur, kps_ref, kps_cur):
-
-        parametrosGrafo = Parameters.graphParams
-
-        if ( self.type == FeatureMatcherTypes.CLIQUE_FLANN ):
-            parametrosGrafo[4] = 2
-
-
-        self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING, False)
-
-        allMatches = self.matcher.knnMatch(des_ref, des_cur, k=2)
-
-        vertices = list()
-        graph = list()
-
-        # Creamos los posibles vértices del grafo
-        for matches in allMatches:
-            for idx, match in enumerate(matches):
-                prev = idx - 1
-                if prev < 0:
-                    continue
-                if match.distance < parametrosGrafo[0] and matches[prev].distance/match.distance > parametrosGrafo[3]:
-                    dist_pixel = np.linalg.norm(kps_ref[match.queryIdx] - kps_cur[match.trainIdx])
-                    
-                    if dist_pixel > 5.0 and dist_pixel < 250.0:
-                        vertices.append((match.queryIdx, match.trainIdx, kps_ref[match.queryIdx][0], kps_ref[match.queryIdx][1], kps_cur[match.trainIdx][0], kps_cur[match.trainIdx][1]))
-
-        # Establecemos las aristas y definimos completamente el grafo
-        for idx, ver1 in enumerate(vertices[0:-1]):
-            for jdx, ver2 in enumerate(vertices[1:]): 
-                F_dist = np.linalg.norm(np.array([ver1[2], ver1[3]]) - np.array([ver2[2], ver2[3]]))
-                T_dist = np.linalg.norm(np.array([ver1[4], ver1[5]]) - np.array([ver2[4], ver2[5]]))
-
-                dist = np.abs(F_dist - T_dist)
-
-                if ver1[0] != ver2[0] and ver1[1] != ver2[1] and dist < 0.7*F_dist:
-                    graph.append([idx, jdx])
-
-
-        vertexMatched = ex.match2ImagesCliqueNoBoost(graph)
-
-        index1 = np.array(_idx1).reshape(len(_idx1))
-        index2 = np.array(_idx2).reshape(len(_idx2))
-
-        ids_ref = index1.astype(int).tolist()
-        ids_cur = index2.astype(int).tolist()
-
-        return ids_ref, ids_cur
-
-"""
-# Clique Matcher
-class CliqueFeatureMatcher(FeatureMatcher):
-    def __init__(self, norm_type=cv2.NORM_HAMMING, cross_check=False, ratio_test=kRatioTest,
-                 type=FeatureMatcherTypes.CLIQUE):
-        super().__init__(norm_type=norm_type, cross_check=cross_check, ratio_test=ratio_test, type=type)
-        self.matcher_name = 'CliqueFeatureMatcher'
-
-    def match(self, des_ref, des_cur, kps_ref, kps_cur):
-
-        parametrosGrafo = Parameters.graphParams
-
-        if ( self.type == FeatureMatcherTypes.CLIQUE_FLANN ):
-            parametrosGrafo[4] = 2
-
-        _idx1, _idx2 = ex.match2ImagesClique(kps_ref, kps_cur, des_ref, des_cur, parametrosGrafo, Parameters.cliqueParams)
-
-        index1 = np.array(_idx1).reshape(len(_idx1))
-        index2 = np.array(_idx2).reshape(len(_idx2))
-
-        ids_ref = index1.astype(int).tolist()
-        ids_cur = index2.astype(int).tolist()
+        self.matcher = cv2.BFMatcher(norm_type, cross_check)
+        self.matcher_name = 'BfFeatureMatcher'
 
         return ids_ref, ids_cur

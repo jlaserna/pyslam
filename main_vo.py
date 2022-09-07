@@ -16,7 +16,7 @@
 * You should have received a copy of the GNU General Public License
 * along with PYSLAM. If not, see <http://www.gnu.org/licenses/>.
 """
-
+import pickle
 import numpy as np
 import cv2
 import math
@@ -51,23 +51,17 @@ kUsePangolin = False
 if kUsePangolin:
     from viewer3D import Viewer3D
 
-
-is_draw_2D = True
-
 if __name__ == "__main__":
 
-    trakerList = [  FeatureTrackerConfigs.ORB2, FeatureTrackerConfigs.AKAZE, FeatureTrackerConfigs.SIFT,
-                    FeatureTrackerConfigs.FLANN_ORB2, FeatureTrackerConfigs.FLANN_AKAZE, FeatureTrackerConfigs.FLANN_SIFT,
-                    FeatureTrackerConfigs.CLIQUE_ORB2, FeatureTrackerConfigs.CLIQUE_AKAZE, FeatureTrackerConfigs.CLIQUE_SIFT,
-                    FeatureTrackerConfigs.CLIQUE_ORB2_FLANN, FeatureTrackerConfigs.CLIQUE_AKAZE_FLANN, FeatureTrackerConfigs.CLIQUE_SIFT_FLANN
-                    ]
-
-    datasetList = ['04', '06', '07']
+    trakerList = (FeatureTrackerConfigs.ORB2, FeatureTrackerConfigs.AKAZE, FeatureTrackerConfigs.SIFT,
+                  FeatureTrackerConfigs.CLIQUE_ORB2, FeatureTrackerConfigs.CLIQUE_AKAZE, FeatureTrackerConfigs.CLIQUE_SIFT)
+    datasetList = ['00', '01', '02']
 
     numRecord = 0
 
     for datasetName in datasetList:
         for tracker in trakerList:
+
             record.append(dict())
             record[numRecord]['exec_time'] = list()
             record[numRecord]['track'] = list()
@@ -78,9 +72,9 @@ if __name__ == "__main__":
 
             config = Config()
 
-            config.dataset_settings["name"] = datasetName
-
             dataset = dataset_factory(config.dataset_settings)
+
+            dataset.name = datasetName
 
             groundtruth = groundtruth_factory(config.dataset_settings)
 
@@ -95,7 +89,7 @@ if __name__ == "__main__":
             # select your tracker configuration (see the file feature_tracker_configs.py)
             # LK_SHI_TOMASI, LK_FAST
             # SHI_TOMASI_ORB, FAST_ORB, ORB, BRISK, AKAZE, FAST_FREAK, SIFT, ROOT_SIFT, SURF, SUPERPOINT, FAST_TFEAT
-            #tracker_config = FeatureTrackerConfigs.CLIQUE_SIFT
+            #tracker_config = FeatureTrackerConfigs.CLIQUE
             #tracker_config['num_features'] = num_features
 
             tracker_config = tracker
@@ -123,10 +117,12 @@ if __name__ == "__main__":
             err_plt = Mplot2d(xlabel='img id', ylabel='m',title='error')
 
             is_draw_matched_points = False
-            matched_points_plt = Mplot2d(xlabel='img id', ylabel='# matches',title='# matches')
+            matched_points_plt = Mplot2d(xlabel='img id', ylabel='# matches', title='# matches')
 
             is_draw_time = False
             time_plt = Mplot2d(xlabel='img id', ylabel='s', title='Execution times')
+
+            import time
             # Times array
             exec_times = list()
 
@@ -137,13 +133,9 @@ if __name__ == "__main__":
 
                 if img is not None:
 
-                    try:
-                        start_time = time.time()
-                        vo.track(img, img_id)  # main VO function
-                        stop_time = time.time() - start_time
-                    except Exception as ex:
-                        img_id += 1
-                        continue
+                    start_time = time.time()
+                    vo.track(img, img_id)  # main VO function
+                    stop_time = time.time() - start_time
 
                     exec_times.append(stop_time)
                     record[numRecord]['exec_time'].append(stop_time)
@@ -157,9 +149,8 @@ if __name__ == "__main__":
 
                         x, y, z = vo.traj3d_est[-1]
                         x_true, y_true, z_true = vo.traj3d_gt[-1]
-                        record[numRecord]['track'].append((x, y, x))
-                        record[numRecord]['RT'].append(
-                            vo.estimatePose(vo.track_result.kps_ref_matched, vo.track_result.kps_cur_matched))
+                        record[numRecord]['track'].append((x,y,x))
+                        record[numRecord]['RT'].append(vo.estimatePose(vo.track_result.kps_ref_matched, vo.track_result.kps_cur_matched))
 
                         if is_draw_traj_img:      # draw 2D trajectory (on the plane xz)
                             draw_x, draw_y = int(draw_scale*x) + half_traj_img_size, half_traj_img_size - int(draw_scale*z)
@@ -181,8 +172,7 @@ if __name__ == "__main__":
                                 plt3d.drawTraj(vo.traj3d_est,'estimated',color='g',marker='.')
                                 plt3d.refresh()
 
-                        record[numRecord]['errors'].append(
-                            (math.fabs(x_true - x), math.fabs(y_true - y), math.fabs(z_true - z)))
+                        record[numRecord]['errors'].append((math.fabs(x_true-x),math.fabs(y_true-y),math.fabs(z_true-z)))
                         if is_draw_err:         # draw error signals
                             errx = [img_id, math.fabs(x_true-x)]
                             erry = [img_id, math.fabs(y_true-y)]
@@ -192,7 +182,7 @@ if __name__ == "__main__":
                             err_plt.draw(errz,'err_z',color='r')
                             err_plt.refresh()
 
-                        record[numRecord]['matches'].append((vo.num_matched_kps, vo.num_inliers))
+                        record[numRecord]['matches'].append((vo.num_matched_kps,vo.num_inliers))
                         if is_draw_matched_points:
                             matched_kps_signal = [img_id, vo.num_matched_kps]
                             inliers_signal = [img_id, vo.num_inliers]
@@ -201,17 +191,15 @@ if __name__ == "__main__":
                             matched_points_plt.refresh()
 
 
+
+
                     # draw camera image
-                    if(is_draw_2D):
-                        cv2.imshow('Camera', vo.draw_img)
+                    cv2.imshow('Camera', vo.draw_img)
 
                 # press 'q' to exit!
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                 img_id += 1
-
-            #print('press a key in order to exit...')
-            #cv2.waitKey(0)
 
             if is_draw_traj_img:
                 print('saving map.png')
@@ -234,6 +222,4 @@ if __name__ == "__main__":
             cv2.destroyAllWindows()
             numRecord = numRecord + 1
 
-timeStamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-
-np.save('/data/outputs/Resultados:' + str(timeStamp) + '.npy', record, allow_pickle=True)
+    np.save('/home/javier/Desktop/Resultados.npy', record, allow_pickle=True)
